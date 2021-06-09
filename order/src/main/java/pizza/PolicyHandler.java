@@ -1,8 +1,9 @@
 package pizza;
 
 import pizza.config.kafka.KafkaProcessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -10,48 +11,48 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PolicyHandler{
-    @Autowired OrderRepository orderRepository;
+    @Autowired
+    OrderRepository orderRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverCooked_UpdateStatus(@Payload Cooked cooked){
 
         if(!cooked.validate()) return;
 
-        System.out.println("\n\n##### listener UpdateStatus : " + cooked.toJson() + "\n\n");
-
-        // Sample Logic //
-        Order order = new Order();
-        orderRepository.save(order);
-            
+        System.out.println("\n\n##### listener UpdateStatus : " + cooked.getOrderId() + ", " + cooked.getStatus());
+        Optional<Order> orderOptional = orderRepository.findByOrderId(cooked.getOrderId());
+        if ( orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setStatus(cooked.getStatus());
+            orderRepository.save(order);
+        }
     }
-    @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverDeliveryStarted_UpdateStatus(@Payload DeliveryStarted deliveryStarted){
 
-        if(!deliveryStarted.validate()) return;
-
-        System.out.println("\n\n##### listener UpdateStatus : " + deliveryStarted.toJson() + "\n\n");
-
-        // Sample Logic //
-        Order order = new Order();
-        orderRepository.save(order);
-            
-    }
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverOrderAccepted_UpdateStatus(@Payload OrderAccepted orderAccepted){
 
         if(!orderAccepted.validate()) return;
 
-        System.out.println("\n\n##### listener UpdateStatus : " + orderAccepted.toJson() + "\n\n");
-
-        // Sample Logic //
-        Order order = new Order();
-        orderRepository.save(order);
-            
+        System.out.println("\n\n##### listener UpdateStatus : " + orderAccepted.getOrderId() + ", " + orderAccepted.getStatus());
+        Optional<Order> orderOptional = orderRepository.findByOrderId(orderAccepted.getOrderId());
+        if ( orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setStatus(orderAccepted.getStatus());
+            orderRepository.save(order);
+        }
     }
 
-
     @StreamListener(KafkaProcessor.INPUT)
-    public void whatever(@Payload String eventString){}
+    public void wheneverDeliveryStarted_UpdateStatus(@Payload DeliveryStarted deliveryStarted){
 
+        if(!deliveryStarted.validate()) return;
 
+        System.out.println("\n\n##### listener UpdateStatus : " + deliveryStarted.getOrderId() + ", " + deliveryStarted.getStatus());
+        Optional<Order> orderOptional = orderRepository.findByOrderId(deliveryStarted.getOrderId());
+        if ( orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setStatus(deliveryStarted.getStatus());
+            orderRepository.save(order);
+        }
+    }
 }

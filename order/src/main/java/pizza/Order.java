@@ -2,13 +2,14 @@ package pizza;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
-import java.util.List;
 import java.util.Date;
 
 @Entity
 @Table(name="Order_table")
 public class Order {
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long orderId;
     private Long customerId;
     private String pizzaNm;
@@ -17,33 +18,54 @@ public class Order {
     private String regionNm;
     private Date orderDt;
 
-    @PostPersist
-    public void onPostPersist(){
-        Ordered ordered = new Ordered();
-        BeanUtils.copyProperties(this, ordered);
-        ordered.publishAfterCommit();
-
+    @PrePersist
+    public void onPrePersist(){
         //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
+        // Req/Res Calling
+        boolean bResult = false;
 
-        pizza.external.Store store = new pizza.external.Store();
         // mappings goes here
-        Application.applicationContext.getBean(pizza.external.StoreService.class)
-            .chkOpenYn(store);
+        bResult = OrderApplication.applicationContext.getBean(pizza.external.StoreService.class).chkOpenYn(this.regionNm);
 
-
-        OrderCancelled orderCancelled = new OrderCancelled();
-        BeanUtils.copyProperties(this, orderCancelled);
-        orderCancelled.publishAfterCommit();
-
-
-        StatusUpdated statusUpdated = new StatusUpdated();
-        BeanUtils.copyProperties(this, statusUpdated);
-        statusUpdated.publishAfterCommit();
-
-
+        // 주문가능 (해당 regionNm에 Open된 Store가 있음)
+        if (bResult) {
+            this.status = "Ordered" ;
+        } else {
+            this.status = "NoStoreOpened" ;
+        }
     }
 
+    @PostPersist
+    public void onPostPersist(){
+
+        if ("Ordered".equals(this.status)) {
+            System.out.println("#### PUB :: Ordered : orderId = " + this.orderId);
+            Ordered ordered = new Ordered();
+            BeanUtils.copyProperties(this, ordered);
+            ordered.publishAfterCommit();
+        } else if ("NoStoreOpened".equals(this.status)) {
+            System.out.println("#### PUB :: OrderRejected : orderId = " + this.orderId);
+            OrderRejected orderRejected = new OrderRejected();
+            BeanUtils.copyProperties(this, orderRejected);
+            orderRejected.publishAfterCommit();
+        }
+    }
+
+    @PostUpdate
+    public void onPostUpdate(){
+        if(this.status.equals("OrderCancelled"))
+        {
+            System.out.println("#### PUB :: OrderCancelled : orderId = " + this.orderId);
+            OrderCancelled orderCancelled = new OrderCancelled();
+            BeanUtils.copyProperties(this, orderCancelled);
+            orderCancelled.publishAfterCommit();
+        } else {
+            System.out.println("#### PUB :: StatusUpdated : status updated to " + this.status);
+            StatusUpdated statusUpdated = new StatusUpdated();
+            BeanUtils.copyProperties(this, statusUpdated);
+            statusUpdated.publishAfterCommit();
+        }
+    }
 
     public Long getOrderId() {
         return orderId;
