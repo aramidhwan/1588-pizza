@@ -1,9 +1,6 @@
 package pizza;
 
 import javax.persistence.*;
-import org.springframework.beans.BeanUtils;
-import java.util.List;
-import java.util.Date;
 
 @Entity
 @Table(name="Store_table")
@@ -14,7 +11,6 @@ public class Store {
     private Long storeId;
     private String regionNm;
     private Boolean openYN;
-
 
     public Long getStoreId() {
         return storeId;
@@ -37,8 +33,4 @@ public class Store {
     public void setOpenYN(Boolean openYn) {
         this.openYN = openYn;
     }
-
-
-
-
 }
