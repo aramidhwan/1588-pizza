@@ -27,7 +27,7 @@ public class PolicyHandler{
         System.out.println("\n\n##### listener OrderAccept : " + ordered.getOrderId());
 
         // 주문접수
-        List<Store> storeList = storeRepository.findByRegionNmOpenYN(ordered.getRegionNm(), Boolean.valueOf(true));
+        List<Store> storeList = storeRepository.findByRegionNmAndOpenYN(ordered.getRegionNm(), Boolean.valueOf(true));
         int openStoreCnt = storeList.size();
 
         if (openStoreCnt > 0) {

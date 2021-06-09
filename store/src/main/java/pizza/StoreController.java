@@ -18,7 +18,7 @@ import java.util.List;
         System.out.println("##### /store/chkOpenYn  called #####");
         boolean status = false;
 
-        List<Store> storeList = storeRepository.findByRegionNmOpenYN(regionNm, Boolean.valueOf(true));
+        List<Store> storeList = storeRepository.findByRegionNmAndOpenYN(regionNm, Boolean.valueOf(true));
         // 주문이 들어온 regionNm에 Open된 Sotre가 한군데라도 있으면 true를 리턴
         if (storeList.size() > 0) {
                 status = true ;

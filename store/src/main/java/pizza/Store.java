@@ -10,10 +10,10 @@ import java.util.Date;
 public class Store {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long storeId;
     private String regionNm;
-    private Boolean openYn;
+    private Boolean openYN;
 
 
     public Long getStoreId() {
@@ -30,12 +30,12 @@ public class Store {
     public void setRegionNm(String regionNm) {
         this.regionNm = regionNm;
     }
-    public Boolean getOpenYn() {
-        return openYn;
+    public Boolean getOpenYN() {
+        return openYN;
     }
 
-    public void setOpenYn(Boolean openYn) {
-        this.openYn = openYn;
+    public void setOpenYN(Boolean openYn) {
+        this.openYN = openYn;
     }
 
 
