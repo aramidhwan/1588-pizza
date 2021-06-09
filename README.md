@@ -1,6 +1,6 @@
 "# 1588-pizza" 
 
-# PIZZA 통합주문센터
+# PIZZA 통합주문콜센터
 
 - 체크포인트 : https://workflowy.com/s/assessment-check-po/T5YrzcMewfo4J6LW
 
@@ -35,24 +35,21 @@
 # 서비스 시나리오
 
 기능적 요구사항
-1. 고객이 도서를 주문한다.
-2. 고객이 주문을 취소할 수 있다.
-3. 주문이 성공하면 배송을 시작한다.
-4. 주문이 취소되면 배송을 취소한다.
-5. 관리자가 신규도서를 등록한다.
-6. 관리자가 도서 재고를 추가한다.
-7. 고객은 회원가입을 한다.
-8. 도서 주문 실적에 따라 고객의 마일리지 및 등급을 관리한다.
-9. 신규 도서가 등록되면 기존 고객에게 알려준다. 
-10. 도서가 재입고되면 재고부족으로 못 구매한 고객에게 알려준다. 
-
+1. 고객이 피자를 주문한다.
+2. 고객 주문이 완료되면 헤딩지역 체인점에 주문이 접수된다.
+3. 체인점에서 피자 조리가 완료되면 지배인(Master)이 "조리완료" 처리한다.
+4. 피자 조리가 완료되면 배달을 시작한다.
+5. 고객이 마이페이지를 통해 주문 상태를 확인할 수 있다.
+6. 체인점에서 피자 조리가 완료되기 전까지는 고객이 주문을 취소할 수 있다.
+7. 관리자가 신규 체인점을 등록할 수 있다.
+8. 관리자가 도서 재고를 추가한다.
 
 비기능적 요구사항
 1. 트랜잭션
-    1. 주문 시 재고가 부족할 경우 주문이 되지 않는다. (Sync 호출)
+    1. 주문 시 해당 지역의 체인점 중 "영업중"인 곳이 단 한 곳도 없다면 주문이력만 남기고 주문은 거절된다. (Sync 호출)
 1. 장애격리
-    1. 고객/마케팅/배달 관리 기능이 수행되지 않더라도 주문은 365일 24시간 받을 수 있어야 한다  Async (event-driven), Eventual Consistency
-    2. 재고시스템이 과중되면 사용자를 잠시동안 받지 않고 재접속하도록 유도한다  Circuit breaker, fallback
+    1. 고객센터/배달 기능이 수행되지 않더라도 주문은 365일 24시간 받을 수 있어야 한다  Async(event-driven), Eventual Consistency
+    2. 체인점 시스템이 과중되면 주문을 잠시동안 받지 않고 재주문하도록 유도한다  Circuit breaker, fallback
 
 
 # 분석/설계
@@ -63,15 +60,15 @@
 
 
 ### 이벤트 도출
-![image](https://user-images.githubusercontent.com/20077391/118743015-7868d300-b88c-11eb-9460-cca173f9495b.png)
+![image](https://user-images.githubusercontent.com/20077391/121368642-2dffe100-c976-11eb-8cf2-8fedc5cbda74.png)
 
 ### 부적격 이벤트 탈락
-![image](https://user-images.githubusercontent.com/20077391/118743271-fe851980-b88c-11eb-846a-b429ae67849c.png)
+![image](https://user-images.githubusercontent.com/20077391/121368470-10cb1280-c976-11eb-9bfa-8d1fe654c50f.png)
 
 
 ### 완성된 1차 모형
+![image](https://user-images.githubusercontent.com/20077391/121368931-66072400-c976-11eb-87b8-d307aa6d404f.png)
 
-![image](https://user-images.githubusercontent.com/9324206/118837153-8146bc80-b8ff-11eb-8062-360768763a8d.png)
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
