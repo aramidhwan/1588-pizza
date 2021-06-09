@@ -1,22 +1,16 @@
 
 package pizza;
 
+import java.util.Date;
+
 public class Cooked extends AbstractEvent {
 
-    private Long id;
     private Long storeOrderId;
     private Long storeId;
     private Long orderId;
     private Date acceptDt;
     private String status;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    
     public Long getStoreOrderId() {
         return storeOrderId;
     }

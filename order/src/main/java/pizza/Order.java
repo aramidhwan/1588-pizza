@@ -33,6 +33,8 @@ public class Order {
         } else {
             this.status = "NoStoreOpened" ;
         }
+
+        this.orderDt = new Date();
     }
 
     @PostPersist
