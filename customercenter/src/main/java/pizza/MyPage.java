@@ -1,6 +1,8 @@
 package pizza;
 
 import javax.persistence.*;
+
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -8,7 +10,7 @@ import java.util.List;
 public class MyPage {
 
         @Id
-        @GeneratedValue(strategy=GenerationType.AUTO)
+        @GeneratedValue(strategy=GenerationType.IDENTITY)
         private Long myPageId;
         private Long orderId;
         private String pizzaNm;

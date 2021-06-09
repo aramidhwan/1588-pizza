@@ -2,7 +2,7 @@ package pizza;
 
 import java.util.Date;
 
-public class Ordered extends AbstractEvent {
+public class OrderRejected extends AbstractEvent {
 
     private Long orderId;
     private Long customerId;

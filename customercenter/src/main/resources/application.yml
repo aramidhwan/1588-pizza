@@ -4,6 +4,20 @@ server:
 
 spring:
   profiles: default
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    username: admin
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL57Dialect
+    hibernate:
+      ddl-auto: update
+      generate-ddl: true
   jpa:
     properties:
       hibernate:

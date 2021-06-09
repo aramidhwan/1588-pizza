@@ -13,7 +13,6 @@ import java.util.Optional;
 @Service
 public class MyPageViewHandler {
 
-
     @Autowired
     private MyPageRepository myPageRepository;
 
@@ -40,6 +39,28 @@ public class MyPageViewHandler {
         }
     }
 
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenOrderRejected_then_CREATE_2 (@Payload OrderRejected orderRejected) {
+        try {
+
+            if (!orderRejected.validate()) return;
+
+            // view 객체 생성
+            MyPage myPage = new MyPage();
+            // view 객체에 이벤트의 Value 를 set 함
+            myPage.setOrderId(orderRejected.getOrderId());
+            myPage.setPizzaNm(orderRejected.getPizzaNm());
+            myPage.setQty(orderRejected.getQty());
+            myPage.setStatus(orderRejected.getStatus());
+            myPage.setOrderDt(orderRejected.getOrderDt());
+            myPage.setCustomerId(orderRejected.getCustomerId());
+            // view 레파지 토리에 save
+            myPageRepository.save(myPage);
+        
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @StreamListener(KafkaProcessor.INPUT)
     public void whenStatusUpdated_then_UPDATE_1(@Payload StatusUpdated statusUpdated) {
