@@ -18,11 +18,6 @@ spring:
     hibernate:
       ddl-auto: update
       generate-ddl: true
-  jpa:
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
   cloud:
     stream:
       kafka:
