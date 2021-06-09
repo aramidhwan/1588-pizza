@@ -3,23 +3,15 @@ package pizza;
 
 public class DeliveryStarted extends AbstractEvent {
 
-    private Long id;
     private Long deliveryId;
     private Long orderId;
     private String status;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Long getId() {
+    public Long getDeliveryId() {
         return deliveryId;
     }
 
-    public void setId(Long deliveryId) {
+    public void setDeliveryId(Long deliveryId) {
         this.deliveryId = deliveryId;
     }
     public Long getOrderId() {

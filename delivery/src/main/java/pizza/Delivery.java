@@ -2,13 +2,13 @@ package pizza;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
-import java.util.List;
-import java.util.Date;
 
 @Entity
 @Table(name="Delivery_table")
 public class Delivery {
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long deliveryId;
     private Long orderId;
     private String status;
@@ -18,10 +18,7 @@ public class Delivery {
         DeliveryStarted deliveryStarted = new DeliveryStarted();
         BeanUtils.copyProperties(this, deliveryStarted);
         deliveryStarted.publishAfterCommit();
-
-
     }
-
 
     public Long getDeliveryId() {
         return deliveryId;
