@@ -343,33 +343,30 @@ http GET http://localhost:8088/myPages/1
 ![image](https://user-images.githubusercontent.com/20077391/121466412-5decca00-c9f2-11eb-8e95-b783c193db96.png)
 
 [Subscribe]
-![image](https://user-images.githubusercontent.com/20077391/121466502-7e1c8900-c9f2-11eb-92df-2edb04293844.png)
+![image](https://user-images.githubusercontent.com/20077391/121466695-ce93e680-c9f2-11eb-938e-03ce98a64282.png)
 
 
 ## CQRS
 Materialized View 를 구현하여, 타 마이크로서비스의 데이터 원본에 접근없이(Composite 서비스나 조인SQL 등 없이) 도 내 서비스의 화면 구성과 잦은 조회가 가능하게 구현해 두었다.
 
-본 프로젝트에서 View 역할은 CustomerCenter 서비스가 수행한다.
+본 프로젝트에서 View 역할은 CustomerCenter 서비스의 마이페이지가 수행한다.
 
 CQRS를 구현하여 주문건에 대한 상태는 Order 마이크로서비스의 접근없이 CustomerCenter의 마이페이지를 통해 조회할 수 있도록 구현하였다.
 
 - 주문(ordered) 실행 후 myPage 화면
 
-![image](https://user-images.githubusercontent.com/20077391/121016627-4f769680-c7d7-11eb-8f60-f9640223c1ec.png)
+![image](https://user-images.githubusercontent.com/20077391/121466962-39452200-c9f3-11eb-83e9-fc75710a4cea.png)
 
 
 - 주문취소(OrderCancelled) 후 myPage 화면
 
-![image](https://user-images.githubusercontent.com/20077391/120961678-3d760300-c799-11eb-829c-16f296d61f27.png)
+![image](https://user-images.githubusercontent.com/20077391/121467122-83c69e80-c9f3-11eb-8777-cb2923d25412.png)
 
-
-위와 같이 주문을 하게되면 Order -> Book -> Order -> Delivery 로 주문이 Assigend 되고
-
-주문 취소가 되면 Status가 "Delivery Cancelled"로 Update 되는 것을 볼 수 있다.
 
 ## Correlation 
 각 이벤트 건(메시지)이 어떤 Policy를 처리할 때 어떤건에 연결된 처리건인지를 구별하기 위한 Correlation-key를 제대로 연결하였는지를 검증하였다.
-![image](https://user-images.githubusercontent.com/20077391/121104779-b333aa80-c83d-11eb-9110-e56c6be57c86.png)
+![image](https://user-images.githubusercontent.com/20077391/121467407-f59ee800-c9f3-11eb-8a15-1eaa2763abbb.png)
+
 
 ## GateWay 
 API GateWay를 통하여 마이크로 서비스들의 진입점을 통일할 수 있다.
@@ -385,26 +382,22 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: CustomerCenter
+        - id: order
           uri: http://localhost:8081
           predicates:
-            - Path= /myPages/**
-        - id: Book
+            - Path=/orders/** 
+        - id: store
           uri: http://localhost:8082
           predicates:
-            - Path=/books/** 
-        - id: Order
+            - Path=/stores/**,/storeOrders/** 
+        - id: delivery
           uri: http://localhost:8083
           predicates:
-            - Path=/orders/** 
-        - id: Delivery
+            - Path=/deliveries/** 
+        - id: customercenter
           uri: http://localhost:8084
           predicates:
-            - Path=/deliveries/** 
-        - id: customer
-          uri: http://localhost:8085
-          predicates:
-            - Path=/customers/** 
+            - Path= /myPages/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -421,26 +414,22 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: order
+          uri: http://order:8080
+          predicates:
+            - Path=/orders/** 
+        - id: store
+          uri: http://store:8080
+          predicates:
+            - Path=/stores/**/storeOrders/** 
+        - id: delivery
+          uri: http://delivery:8080
+          predicates:
+            - Path=/deliveries/** 
         - id: customercenter
           uri: http://customercenter:8080
           predicates:
-            - Path= /marketingTargets/**,/outOfStockOrders/**,/myPages/**
-        - id: Book
-          uri: http://Book:8080
-          predicates:
-            - Path=/books/** 
-        - id: Order
-          uri: http://Order:8080
-          predicates:
-            - Path=/orders/** 
-        - id: Delivery
-          uri: http://Delivery:8080
-          predicates:
-            - Path=/deliveries/** 
-        - id: customer
-          uri: http://customer:8080
-          predicates:
-            - Path=/customers/** 
+            - Path= /myPages/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -460,18 +449,18 @@ server:
 ## Polyglot
 
 각 마이크로서비스의 다양한 요구사항에 능동적으로 대처하고자 최적의 구현언어 및 DBMS를 선택할 수 있다.
-OnlineBookStore에서는 다음과 같이 2가지 DBMS를 적용하였다.
-- MySQL(쿠버네티스에서는 SQLServer) : Book, CustomerCenter, Customer, Delivery
-- H2    : Order
+1588-pizza에서는 다음과 같이 2가지 DBMS를 적용하였다.
+- MySQL(쿠버네티스에서는 SQLServer) : Order, Store, Delivery
+- H2    : CustomerCenter
 
 ```
-# (Book, CustomerCenter, Customer, Delivery) application.yml
+# (Order, Store, Delivery) application.yml
 
 spring:
   profiles: default
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bookdb?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
     username: *****
     password: *****
 
@@ -479,105 +468,92 @@ spring:
   profiles: docker
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://skccteam2.database.windows.net:1433;database=bookstore;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
+    url: jdbc:sqlserver://aramidhwan.database.windows.net:1433;database=1588-pizza;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
     username: ${SQLSERVER_USERNAME}
     password: ${SQLSERVER_PASSWORD}
 ...
 
-# (Order) application.yml
+# (CustomerCenter) application.yml
 
 spring:
   profiles: default
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:/data/orderdb
-    username: *****
-    password: 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 ```
 
 
 ## 동기식 호출(Req/Resp) 패턴
 
-분석단계에서의 조건 중 하나로 주문(Order)->책 재고 확인(Book) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 
+분석단계에서의 조건 중 하나로 주문(Order)->체인점(Store) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 
 호출 프로토콜은 RestController를 FeignClient 를 이용하여 호출하도록 한다. 
 
-- 재고 확인 서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
+- 체인점 "영업중" 상태 확인 서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
 ```
-# (Order) BookService.java
+# (Order) StoreService.java
 
+package pizza.external;
 
-package onlinebookstore.external;
+@FeignClient(name="store", url="${api.url.book}")
+public interface StoreService {
 
-@FeignClient(name="Book", url="${api.url.book}")
-public interface BookService {
-
-    @RequestMapping(method= RequestMethod.GET, path="/books/chkAndModifyStock")
-    public boolean chkAndModifyStock(@RequestParam("bookId") Long bookId,
-                                        @RequestParam("qty") int qty);
-
+    @RequestMapping(method= RequestMethod.GET, path="/stores/chkOpenYN")
+    public boolean chkOpenYN(@RequestParam("regionNm") String regionNm);
 }
 ```
 
-- 주문을 받은 직후 재고(Book) 확인을 요청하도록 처리
+- 주문을 받은 직후 해당 지역의 체인점 "영업중" 확인을 요청하도록 처리
 ```
-# BookController.java
+# StoreController.java
 
-package onlinebookstore;
+package pizza;
 
  @RestController
- public class BookController {
-     @Autowired  BookRepository bookRepository;
+ public class StoreController {
+    @Autowired
+    StoreRepository storeRepository;
 
-     @RequestMapping(value = "/books/chkAndModifyStock",
-             method = RequestMethod.GET,
-             produces = "application/json;charset=UTF-8")
-     public boolean chkAndModifyStock(@RequestParam("bookId") Long bookId,
-                                      @RequestParam("qty")  int qty)
-             throws Exception {
-             
-         boolean status = false;
-         Optional<Book> bookOptional = bookRepository.findByBookId(bookId);
-         if (bookOptional.isPresent()) {
-            Book book = bookOptional.get();
-            // 현 재고보다 주문수량이 적거나 같은경우에만 true 회신
-            if( book.getStock() >= qty){
-                status = true;
-                book.setStockBeforeUpdate(book.getStock());
-                book.setStock(book.getStock() - qty); // 주문수량만큼 재고 감소
-                bookRepository.save(book);
-         }
-      }
+    @RequestMapping(value = "/stores/chkOpenYN", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public boolean chkOpenYN(@RequestParam("regionNm") String regionNm) throws Exception {
 
-      return status;
-  }
+        System.out.println("##### /store/chkOpenYn  called #####");
+        boolean status = false;
 
+        List<Store> storeList = storeRepository.findByRegionNmAndOpenYN(regionNm, Boolean.valueOf(true));
+        // 주문이 들어온 regionNm에 Open된 Sotre가 한군데라도 있으면 true를 리턴
+        if (storeList.size() > 0) {
+                status = true ;
+        }
+
+        return status;
+    }
+ }
 ```
 
-- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 재고 관리 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
+- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 체인점 관리 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
 
 
 ```
-# 책 재고 관리 (Book) 서비스를 잠시 내려놓음 (ctrl+c)
+# 체인점 관리 (Store)) 서비스를 잠시 내려놓음 (ctrl+c)
 
 #주문처리
-http POST localhost:8088/orders bookId=1 qty=10 customerId=1   #Fail
-http POST localhost:8088/orders bookId=2 qty=20 customerId=2   #Fail
+http POST http://localhost:8088/orders customerId=1 pizzaNm="페퍼로니피자" qty=1 regionNm="강남구"   #Fail
 
-#재고 관리 서비스 재기동
-cd Book
+#체인점 관리 서비스 재기동
+cd Store
 mvn spring-boot:run
 
 #주문처리
-http POST localhost:8088/orders bookId=1 qty=10 customerId=1   #Success
-http POST localhost:8088/orders bookId=2 qty=20 customerId=2   #Success
+http POST http://localhost:8088/orders customerId=1 pizzaNm="페퍼로니피자" qty=1 regionNm="강남구"   #Success
 ```
 추후 운영단계에서는 Circuit Breaker를 이용하여 재고 관리 시스템에 장애가 발생하여도 주문 접수는 가능하도록 개선할 예정이다.
 
 
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
 
-주문이 이루어진 후에 배송 시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 배송 시스템의 처리를 위하여 주문이 블로킹 되지 않도록 처리한다.
+주문이 이루어진 후에 체인점/배달 시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 체인점/배송 시스템의 처리를 위하여 주문이 블로킹 되지 않도록 처리한다.
  
 - 이를 위하여 주문이력에 기록을 남긴 후에 곧바로 주문이 완료되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
  
