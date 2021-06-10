@@ -36,11 +36,11 @@
 
 기능적 요구사항
 1. 고객이 피자를 주문한다.
-2. 고객 주문이 완료되면 헤딩지역 체인점에 주문이 접수된다.
+2. 고객 주문이 완료되면 해당지역 체인점에 주문이 접수된다.
 3. 체인점에서 피자 조리가 완료되면 지배인(Master)이 "조리완료" 처리한다.
 4. 피자 조리가 완료되면 배달을 시작한다.
 5. 고객이 마이페이지를 통해 주문 상태를 확인할 수 있다.
-6. 체인점에서 피자 조리가 완료되기 전까지는 고객이 주문을 취소할 수 있다.
+6. 고객이 주문을 취소할 수 있다.
 7. 관리자가 신규 체인점을 등록할 수 있다.
 
 비기능적 요구사항
@@ -72,11 +72,11 @@
 ![image](https://user-images.githubusercontent.com/20077391/121370919-17f32000-c978-11eb-8348-67da8294dd0e.png)
 
 1. 고객이 피자를 주문한다.
-2. 고객 주문이 완료되면 헤딩지역 체인점에 주문이 접수된다.
+2. 고객 주문이 완료되면 해당지역 체인점에 주문이 접수된다.
 3. 체인점에서 피자 조리가 완료되면 지배인(Master)이 "조리완료" 처리한다.
 4. 피자 조리가 완료되면 배달을 시작한다.
 5. 고객이 마이페이지를 통해 주문 상태를 확인할 수 있다.
-6. 체인점에서 피자 조리가 완료되기 전까지는 고객이 주문을 취소할 수 있다.
+6. 고객이 주문을 취소할 수 있다.
 7. 관리자가 신규 체인점을 등록할 수 있다.
 
 ### 1차 완성본에 대한 비기능적 요구사항을 커버하는지 검증
@@ -91,7 +91,7 @@
 
 
 ### 최종 완성된 모형
-![image](https://user-images.githubusercontent.com/20077391/121371733-bc756200-c978-11eb-8756-2544421d498d.png)
+![image](https://user-images.githubusercontent.com/20077391/121464276-8f639680-c9ee-11eb-9649-5672d7c2737a.png)
 
 
 ## 헥사고날 아키텍처 다이어그램 도출 (ㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌ)
@@ -274,95 +274,76 @@ http GET http://localhost:8088/myPages/1
 
 ## 기능적 요구사항 검증
 
-1. 고객이 도서를 주문한다.
+1. 고객이 피자를 주문한다.
 
 --> 정상적으로 주문됨을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121013903-5e0f7e80-c7d4-11eb-9edf-6c77e4233085.png)
+![image](https://user-images.githubusercontent.com/20077391/121451877-54a33380-c9d9-11eb-960e-7061bb138995.png)
 
 
-2. 고객이 주문을 취소할 수 있다.
+2. 고객 주문이 완료되면 해당지역 체인점에 주문이 접수된다.
+
+--> 정상적으로 주문이 접수됨을 확인하였음
+![image](https://user-images.githubusercontent.com/20077391/121452388-4d305a00-c9da-11eb-9719-9f398801e0c9.png)
+
+
+3. 체인점에서 피자 조리가 완료되면 체인점 지배인(Master)이 "조리완료" 처리한다.
+
+--> 정상적으로 조리완료 처리됨을 확인하였음
+![image](https://user-images.githubusercontent.com/20077391/121452939-3fc79f80-c9db-11eb-84d4-81c37682303d.png)
+
+
+4. 피자 조리가 완료되면 배달을 시작한다.
+
+--> 정상적으로 배달 시작됨을 확인하였음
+![image](https://user-images.githubusercontent.com/20077391/121453046-730a2e80-c9db-11eb-864b-49c4855f20ad.png)
+
+
+5. 고객이 마이페이지를 통해 주문 상태를 확인할 수 있다.
+
+--> 정상적으로 조회됨 확인하였음
+![image](https://user-images.githubusercontent.com/20077391/121453233-c7ada980-c9db-11eb-8fcf-0d3958ee0bfb.png)
+
+
+6. 고객이 주문을 취소할 수 있다.
 
 --> 정상적으로 취소됨을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121015316-d165c000-c7d5-11eb-89ae-4ef61c90adc9.png)
+![image](https://user-images.githubusercontent.com/20077391/121465258-6f34d700-c9f0-11eb-8dcf-b43771965440.png)
 
 
-3. 주문이 성공하면 배송을 시작한다.
-
---> 정상적으로 배송 시작됨을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121014192-aa5abe80-c7d4-11eb-8b9f-f17e51662769.png)
-
-
-4. 주문이 취소되면 배송을 취소한다.
-
---> 주문과 배송 시스템에서 각각 취소되었음을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121015454-f9edba00-c7d5-11eb-885b-af20cf53cd22.png)
-
-
-5. 관리자가 신규도서를 등록한다.
+7. 관리자가 신규 체인점을 등록할 수 있다.
 
 --> 정상적으로 등록됨을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121013489-d7f33800-c7d3-11eb-8c46-3e40e5fc6be3.png)
-
-
-6. 관리자가 도서 재고를 추가한다.
-
---> 정상적으로 재고가 늘어남을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121015711-41744600-c7d6-11eb-96da-c11b1a800f93.png)
-
-
-7. 고객은 회원가입을 한다.
-
---> 정상적으로 등록됨을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121013551-eccfcb80-c7d3-11eb-99e9-5946cf5cf5bd.png)
-
-
-8. 도서 주문 실적에 따라 고객의 마일리지 및 등급을 관리한다.
-
---> 주문했던 고객의 등급과 마일리지가 올라간 것을 알 수 있다.
-![image](https://user-images.githubusercontent.com/20077391/121014460-f7d72b80-c7d4-11eb-8b35-6e3a8ffa08bc.png)
-
-
-9. 신규 도서가 등록되면 기존 고객에게 알려준다.
-
---> SNS가 발송됨을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121014951-7633cd80-c7d5-11eb-94f1-cf704f4a9fc1.png)
-
-
-10. 도서가 재입고되면 재고부족으로 못 구매한 고객에게 알려준다.
-
---> SNS가 발송됨을 확인하였음
-![image](https://user-images.githubusercontent.com/20077391/121015814-6072d800-c7d6-11eb-9786-c02c5a48189b.png)
+![image](https://user-images.githubusercontent.com/20077391/121465434-c5a21580-c9f0-11eb-90eb-ffd73b821d6a.png)
 
 
 ## 비기능적 요구사항 검증
 
 1. 트랜잭션
 
-주문 시 재고가 부족할 경우 주문이 되지 않는다. (Sync 호출)
+주문 시 해당 지역의 체인점 중 "영업중"인 곳이 단 한 곳도 없다면 주문이력만 남기고 주문은 거절된다. (Sync 호출)
 
---> 재고보다 많은 양(qty)을 주문하였을 경우 OutOfStock으로 처리한다.
-![image](https://user-images.githubusercontent.com/20077391/121017541-59e56000-c7d8-11eb-8dc0-54e38c3f5872.png)
+![image](https://user-images.githubusercontent.com/20077391/121465789-377a5f00-c9f1-11eb-99a9-989d87630653.png)
 
 
 2. 장애격리
-고객/고객센터/배달 관리 기능이 수행되지 않더라도 주문은 365일 24시간 받을 수 있어야 한다 Async (event-driven), Eventual Consistency
+고객센터/배달 기능이 수행되지 않더라도 주문은 365일 24시간 받을 수 있어야 한다  Async(event-driven), Eventual Consistency
 
---> 고객/고객센터/배달 마이크로서비스를 모두 내리고 주문을 생성했을때, 정상적으로 주문됨을 확인함
-![image](https://user-images.githubusercontent.com/20077391/121018620-9a91a900-c7d9-11eb-89fc-bdd37313434e.png)
-![image](https://user-images.githubusercontent.com/20077391/121018208-25be6f00-c7d9-11eb-8b1a-106718b53453.png)
+![image](https://user-images.githubusercontent.com/20077391/121466075-bff8ff80-c9f1-11eb-9a20-68e5455850eb.png)
+![image](https://user-images.githubusercontent.com/20077391/121466182-f20a6180-c9f1-11eb-94d8-e6e22168ad45.png)
 
 
-3. 재고시스템이 과중되면 사용자를 잠시동안 받지 않고 재접속하도록 유도한다 Circuit breaker, fallback
+3. 상점시스템이 과중되면 주문을 잠시동안 받지 않고 재접속하도록 유도한다 Circuit breaker, fallback
 
 --> 뒤의 Hystrix를 통한 Circuit Break 구현에서 검증하도록 한다.
+
 
 ## Saga
 분석/설계 및 구현을 통해 이벤트를 Publish/Subscribe 하도록 구현하였다.
 [Publish]
-![image](https://user-images.githubusercontent.com/20077391/121020310-353eb780-c7db-11eb-9e6e-2a0b0f9917e2.png)
+![image](https://user-images.githubusercontent.com/20077391/121466412-5decca00-c9f2-11eb-8e95-b783c193db96.png)
 
 [Subscribe]
-![image](https://user-images.githubusercontent.com/20077391/121099508-ede41580-c832-11eb-826d-6f4d395193b0.png)
+![image](https://user-images.githubusercontent.com/20077391/121466502-7e1c8900-c9f2-11eb-92df-2edb04293844.png)
 
 
 ## CQRS
