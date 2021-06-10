@@ -42,7 +42,6 @@
 5. 고객이 마이페이지를 통해 주문 상태를 확인할 수 있다.
 6. 체인점에서 피자 조리가 완료되기 전까지는 고객이 주문을 취소할 수 있다.
 7. 관리자가 신규 체인점을 등록할 수 있다.
-8. 관리자가 도서 재고를 추가한다.
 
 비기능적 요구사항
 1. 트랜잭션
@@ -65,47 +64,37 @@
 ### 부적격 이벤트 탈락
 ![image](https://user-images.githubusercontent.com/20077391/121368470-10cb1280-c976-11eb-9bfa-8d1fe654c50f.png)
 
-
 ### 완성된 1차 모형
-![image](https://user-images.githubusercontent.com/20077391/121368931-66072400-c976-11eb-87b8-d307aa6d404f.png)
+![image](https://user-images.githubusercontent.com/20077391/121369235-a1095780-c976-11eb-964f-172f756d66ce.png)
 
 
-### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
+### 1차 완성본에 대한 기능적 요구사항을 커버하는지 검증
+![image](https://user-images.githubusercontent.com/20077391/121370919-17f32000-c978-11eb-8348-67da8294dd0e.png)
 
-![image](https://user-images.githubusercontent.com/9324206/118841865-a63d2e80-b903-11eb-90ed-e044f2feb128.png)
+1. 고객이 피자를 주문한다.
+2. 고객 주문이 완료되면 헤딩지역 체인점에 주문이 접수된다.
+3. 체인점에서 피자 조리가 완료되면 지배인(Master)이 "조리완료" 처리한다.
+4. 피자 조리가 완료되면 배달을 시작한다.
+5. 고객이 마이페이지를 통해 주문 상태를 확인할 수 있다.
+6. 체인점에서 피자 조리가 완료되기 전까지는 고객이 주문을 취소할 수 있다.
+7. 관리자가 신규 체인점을 등록할 수 있다.
 
-    1. 고객이 도서를 주문한다.
-    2. 고객이 주문을 취소할 수 있다.
-    3. 주문이 성공하면 배송을 시작한다.
-    4. 주문이 취소되면 배송을 취소한다.
+### 1차 완성본에 대한 비기능적 요구사항을 커버하는지 검증
+![image](https://user-images.githubusercontent.com/20077391/121371566-9a7bdf80-c978-11eb-8a2e-9f37c13f8013.png)
 
-![image](https://user-images.githubusercontent.com/9324206/118842116-e13f6200-b903-11eb-899b-b415d084e314.png)
+비기능적 요구사항
+1. 트랜잭션
+    1. 주문 시 해당 지역의 체인점 중 "영업중"인 곳이 단 한 곳도 없다면 주문이력만 남기고 주문은 거절된다. (Sync 호출)
+1. 장애격리
+    1. 고객센터/배달 기능이 수행되지 않더라도 주문은 365일 24시간 받을 수 있어야 한다  Async(event-driven), Eventual Consistency
+    2. 체인점 시스템이 과중되면 주문을 잠시동안 받지 않고 재주문하도록 유도한다  Circuit breaker, fallback
 
-    1. 관리자가 신규도서를 등록한다.
-    2. 신규 도서가 등록되면 기존 고객에게 알려준다.
-    3. 관리자는 도서 재고를 추가한다.
-    4. 도서 재고가 추가되면 재고부족으로 못 구매한 고객에게 알려준다.
-    
-![image](https://user-images.githubusercontent.com/9324206/118843424-02ed1900-b905-11eb-9f30-502574dc47cc.png)
 
-    1. 고객은 회원가입을 한다.
-    2. 도서 주문 실적에 따라 고객의 마일리지 및 등급을 관리한다.
-    
-    
-### 비기능 요구사항에 대한 검증
-
-![image](https://user-images.githubusercontent.com/9324206/118844711-249ad000-b906-11eb-9e37-42863a2b27ca.png)
-
-    1. 신규 주문이 들어올 시 재고를 Sync 호출을 통해 확인하여 결과에 따라 주문 성공 여부가 결정.
-    2. 고객/마케팅/배달 각각의 기능은 Async (event-driven) 방식으로 통신, 장애 격리가 가능.
-    3. MyPage 를 통해 고객이 주문의 상태를 확인.
-    
 ### 최종 완성된 모형
+![image](https://user-images.githubusercontent.com/20077391/121371733-bc756200-c978-11eb-8756-2544421d498d.png)
 
-![image](https://user-images.githubusercontent.com/20077391/121104501-24269280-c83d-11eb-9f13-dc342d695069.png)
 
-
-## 헥사고날 아키텍처 다이어그램 도출
+## 헥사고날 아키텍처 다이어그램 도출 (ㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌ)
 
 ![image](https://user-images.githubusercontent.com/84316082/120965636-238bee80-c7a0-11eb-80b4-f22239207caa.png)
     
@@ -116,34 +105,24 @@
 
 # 구현:
 
-분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
+분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로서비스들을 스프링부트로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
 
 ```
 cd gateway
 mvn spring-boot:run
 
-cd Book
+cd order
 mvn spring-boot:run 
 
-cd customer
-mvn spring-boot:run  
-
-cd CustomerCenter
-mvn spring-boot:run  
-
-cd Delivery
-mvn spring-boot:run  
-
-cd Order
-mvn spring-boot:run  
+... 이하 동일(생략) ...
 ```
 
 ## DDD 의 적용
 
-- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 Order 마이크로 서비스). 이때 가능한 현업에서 사용하는 언어 (유비쿼터스 랭귀지)를 그대로 사용하려고 노력했다. 
+- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 Order 마이크로서비스). 이때 가능한 현업에서 사용하는 언어 (유비쿼터스 랭귀지)를 그대로 사용하려고 노력하였다. 
 
 ```
-package onlinebookstore;
+package pizza;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
@@ -156,13 +135,63 @@ public class Order {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long orderId;
-    private Long bookId;
-    private Integer qty;
-    private Integer price;
-    private Integer paymentId;
     private Long customerId;
-    private Date orderDt;
+    private String pizzaNm;
+    private Integer qty;
     private String status;
+    private String regionNm;
+    private Date orderDt;
+
+    @PrePersist
+    public void onPrePersist(){
+        //Following code causes dependency to external APIs
+        // Req/Res Calling
+        boolean bResult = false;
+
+        // mappings goes here
+        bResult = OrderApplication.applicationContext.getBean(pizza.external.StoreService.class).chkOpenYn(this.regionNm);
+
+        // 주문가능 (해당 regionNm에 Open된 Store가 있음)
+        if (bResult) {
+            this.status = "Ordered" ;
+        } else {
+            this.status = "NoStoreOpened" ;
+        }
+
+        this.orderDt = new Date();
+    }
+
+    @PostPersist
+    public void onPostPersist(){
+
+        if ("Ordered".equals(this.status)) {
+            System.out.println("#### PUB :: Ordered : orderId = " + this.orderId);
+            Ordered ordered = new Ordered();
+            BeanUtils.copyProperties(this, ordered);
+            ordered.publishAfterCommit();
+        } else if ("NoStoreOpened".equals(this.status)) {
+            System.out.println("#### PUB :: OrderRejected : orderId = " + this.orderId);
+            OrderRejected orderRejected = new OrderRejected();
+            BeanUtils.copyProperties(this, orderRejected);
+            orderRejected.publishAfterCommit();
+        }
+    }
+
+    @PostUpdate
+    public void onPostUpdate(){
+        if(this.status.equals("OrderCancelled"))
+        {
+            System.out.println("#### PUB :: OrderCancelled : orderId = " + this.orderId);
+            OrderCancelled orderCancelled = new OrderCancelled();
+            BeanUtils.copyProperties(this, orderCancelled);
+            orderCancelled.publishAfterCommit();
+        } else {
+            System.out.println("#### PUB :: StatusUpdated : status updated to " + this.status);
+            StatusUpdated statusUpdated = new StatusUpdated();
+            BeanUtils.copyProperties(this, statusUpdated);
+            statusUpdated.publishAfterCommit();
+        }
+    }
 
     public Long getOrderId() {
         return orderId;
@@ -171,13 +200,19 @@ public class Order {
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
-
-    public Long getBookId() {
-        return bookId;
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+    public String getPizzaNm() {
+        return pizzaNm;
+    }
+
+    public void setPizzaNm(String pizzaNm) {
+        this.pizzaNm = pizzaNm;
     }
     public Integer getQty() {
         return qty;
@@ -186,26 +221,19 @@ public class Order {
     public void setQty(Integer qty) {
         this.qty = qty;
     }
-    public Integer getPrice() {
-        return price;
+    public String getStatus() {
+        return status;
     }
 
-    public void setPrice(Integer price) {
-        this.price = price;
+    public void setStatus(String status) {
+        this.status = status;
     }
-    public Integer getPaymentId() {
-        return paymentId;
-    }
-
-    public void setPaymentId(Integer paymentId) {
-        this.paymentId = paymentId;
-    }
-    public Long getCustomerId() {
-        return customerId;
+    public String getRegionNm() {
+        return regionNm;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setRegionNm(String regionNm) {
+        this.regionNm = regionNm;
     }
     public Date getOrderDt() {
         return orderDt;
@@ -214,39 +242,33 @@ public class Order {
     public void setOrderDt(Date orderDt) {
         this.orderDt = orderDt;
     }
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }
-
-
 ```
-- Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (MySQL or h2) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다. (로컬개발환경에서는 MySQL/H2를, 쿠버네티스에서는 SQLServer/H2를 각각 사용하였다)
+- Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (MySQL or H2)에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다. (로컬 개발환경에서는 MySQL/H2를, 쿠버네티스에서는 SQLServer/H2를 각각 사용하였다)
 ```
-package onlinebookstore;
+package pizza;
+
+import java.util.Optional;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(collectionResourceRel="orders", path="orders")
 public interface OrderRepository extends PagingAndSortingRepository<Order, Long>{
-}
 
+    Optional<Order> findByOrderId(Long orderId);
+}
 ```
 - 적용 후 REST API 의 테스트
 ```
-# Order 서비스의 주문처리
-http POST localhost:8088/orders bookId=1 qty=1 customerId=1
+# Store 서비스의 신규 체인점 등록
+http POST http://localhost:8088/stores regionNm="강남구" openYN=true
 
-# Book 서비스의 재입고
-http PATCH http://localhost:8088/books/reStock bookId=1  stock=1000
+# Order 서비스의 주문
+http POST http://localhost:8088/orders customerId=1 pizzaNm="페퍼로니피자" qty=1 regionNm="강남구"
 
 # 주문 상태 확인
-http GET localhost:8088/myPages/
+http GET http://localhost:8088/myPages/1
 
 ```
 
