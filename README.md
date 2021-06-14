@@ -94,10 +94,10 @@
 ![image](https://user-images.githubusercontent.com/20077391/121464276-8f639680-c9ee-11eb-9649-5672d7c2737a.png)
 
 
-## 헥사고날 아키텍처 다이어그램 도출 (ㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌㅌ)
+## 헥사고날 아키텍처 다이어그램 도출 
 
-![image](https://user-images.githubusercontent.com/84316082/120965636-238bee80-c7a0-11eb-80b4-f22239207caa.png)
-    
+![image](https://user-images.githubusercontent.com/20077391/121859335-88ac8a80-cd32-11eb-9159-9599abcf67cf.png)
+
     - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
     - 호출관계에서 PubSub 과 Req/Resp 를 구분함
     - 서브 도메인과 바운디드 컨텍스트의 분리:  각 팀의 KPI 별로 아래와 같이 관심 구현 스토리를 나눠가짐
