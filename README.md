@@ -710,7 +710,7 @@ spec:
 
 - deploy 완료
 
-![image](https://user-images.githubusercontent.com/20077391/121022073-fc9fdd80-c7dc-11eb-9f50-962556056728.png)
+![image](https://user-images.githubusercontent.com/20077391/121853555-04ef9f80-cd2c-11eb-98fd-ce8b8b25732c.png)
 
 
 ## ConfigMap 
@@ -797,21 +797,21 @@ kubectl create configmap resturl --from-literal=sotreUrl=http://Store:8080
 ```
 # http POST http://104.42.177.6:8080/orders customerId=1 pizzaNm="페퍼로니피자" qty=1 regionNm="종로구"
 ```
-![image](https://user-images.githubusercontent.com/20077391/121842148-cbfaff00-cd1a-11eb-961b-0283b39c6c37.png)
+![image](https://user-images.githubusercontent.com/20077391/121842758-ec778900-cd1b-11eb-9698-5a4ac08c39e8.png)
 ![image](https://user-images.githubusercontent.com/20077391/121841895-411a0480-cd1a-11eb-8d39-247abb36ecc4.png)
 
 
-time 아웃이 연달아 2번 발생한 경우 CB가 OPEN되어 Book 호출이 아예 차단된 것을 확인 (테스트를 위해 circuitBreaker.requestVolumeThreshold=1 로 설정)
+time 아웃이 연달아 2번 발생한 경우 CB가 OPEN되어 체인점(Store) 호출이 아예 차단된 것을 확인 (테스트를 위해 circuitBreaker.requestVolumeThreshold=1 로 설정)
 
-![image](https://user-images.githubusercontent.com/20077391/120970889-fabb2780-c7a6-11eb-9ab9-e44700c270a7.png)
+![image](https://user-images.githubusercontent.com/20077391/121842905-395b5f80-cd1c-11eb-88c3-9ae9b08e4ce1.png)
 
 
 일정시간 뒤에는 다시 주문이 정상적으로 수행되는 것을 알 수 있다.
 
-![image](https://user-images.githubusercontent.com/20077391/120973450-ea587c00-c7a9-11eb-863b-f15dda3bdaa9.png)
+![image](https://user-images.githubusercontent.com/20077391/121843051-80e1eb80-cd1c-11eb-9f78-dc1960e2000a.png)
 
 
-- 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 Thread 자원 등을 보호하고 있음을 보여줌.
+- 시스템이 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 Thread 자원 등을 보호하고 있음을 보여줌.
 
 
 
@@ -822,18 +822,17 @@ time 아웃이 연달아 2번 발생한 경우 CB가 OPEN되어 Book 호출이 �
 ```
 hpa.yml
 ```
-![image](https://user-images.githubusercontent.com/20077391/120973949-8aaea080-c7aa-11eb-80ce-eccb3c8cbc0d.png)
+![image](https://user-images.githubusercontent.com/20077391/121843544-6e1be680-cd1d-11eb-9c2c-da27c0842e89.png)
 
 - deployment.yml에 resource 관련 설정을 추가해 준다.
 ```
 deployment.yml
 ```
-![image](https://user-images.githubusercontent.com/20077391/121101100-25a08c80-c836-11eb-81f1-a7df0f0dcaeb.png)
-
+![image](https://user-images.githubusercontent.com/20077391/121843585-7ffd8980-cd1d-11eb-876d-2a5c516a9101.png)
 
 - 100명이 60초 동안 주문을 넣어준다.
 ```
-siege -c100 -t60S -r10 --content-type "application/json" 'http://52.141.32.129:8080/orders POST {"bookId":"1","customerId":"1","qty":"1"}
+siege -c100 -t60S --content-type "application/json" 'http://10.0.223.154:8080/orders POST {"customerId":"1","pizzaNm":"페퍼로니피자","qty":"1","regionNm":"강남구"}'
 ```
 
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
@@ -843,7 +842,8 @@ kubectl get deploy -l app=order -w
 
 - 어느정도 시간이 흐른 후 스케일 아웃이 벌어지는 것을 확인할 수 있다.
 
-![image](https://user-images.githubusercontent.com/20077391/120974885-9babe180-c7ab-11eb-9a84-07bfb408ed34.png)
+![image](https://user-images.githubusercontent.com/20077391/121853157-8430a380-cd2b-11eb-9df2-dec3a01a7cb3.png)
+
 
 - siege 의 로그를 보면 오토스케일 확장이 일어나며 주문을 100% 처리완료한 것을 알 수 있었다.
 ```
@@ -851,39 +851,40 @@ kubectl get deploy -l app=order -w
 ** Preparing 100 concurrent users for battle.
 The server is now under siege...
 Lifting the server siege...
-Transactions:                   2904 hits
-Availability:                 100.00 %        
-Elapsed time:                  59.64 secs     
-Data transferred:               0.90 MB       
-Response time:                  2.02 secs     
-Transaction rate:              48.69 trans/sec
-Throughput:                     0.02 MB/sec   
-Concurrency:                   98.52
-Successful transactions:        2904
+Transactions:                   5077 hits
+Availability:                 100.00 %
+Elapsed time:                  59.58 secs
+Data transferred:               1.58 MB
+Response time:                  1.16 secs
+Transaction rate:              85.21 trans/sec
+Throughput:                     0.03 MB/sec
+Concurrency:                   98.86
+Successful transactions:        5077
 Failed transactions:               0
-Longest transaction:           13.62
-Shortest transaction:           0.11
+Longest transaction:            5.64
+Shortest transaction:           0.00
 ```
 
 
 
 ## Zero-downtime deploy (Readiness Probe) 무정지 재배포
 
-* Zero-downtime deploy를 위해 readiness Probe를 설정함
-![image](https://user-images.githubusercontent.com/20077391/121024696-6e792680-c7df-11eb-8cc3-ad8e1cbda949.png)
+* Zero-downtime deploy를 위해 deployment.yml에 readiness Probe를 설정함
+![image](https://user-images.githubusercontent.com/20077391/121853740-42542d00-cd2c-11eb-9455-08562342a5ab.png)
 
 
-* Zero-downtime deploy 확인을 위해 seige 로 1명이 지속적인 고객등록 작업을 수행함
+* 먼저 store 이미지가 v1.0 임을 확인
+![image](https://user-images.githubusercontent.com/20077391/121855205-0a4de980-cd2e-11eb-9242-062fc4bcbd00.png)
+
+
+* Zero-downtime deploy 확인을 위해 seige 로 1명이 지속적인 체인점 등록 작업을 수행함
 ```
-siege -c1 -t180S -r100 --content-type "application/json" 'http://localhost:8080/customers POST {"name": "CUSTOMER99","email":"CUSTOMER99@onlinebookstore.com"}'
+siege -c1 -t180S --content-type "application/json" 'http://localhost:8080/stores POST {"regionNm": "강남구","openYN":"true"}'
 ```
-
-먼저 customer 이미지가 v1.0 임을 확인
-![image](https://user-images.githubusercontent.com/20077391/120979102-31e20680-c7b0-11eb-8bb6-53481781e62c.png)
 
 새 버전으로 배포(이미지를 v2.0으로 변경)
 ```
-kubectl set image deployment customer customer=skccteam2acr.azurecr.io/customer:v2.0
+kubectl set image deployment store store=myacr00.azurecr.io/store:v2.0
 ```
 
 customer 이미지가 변경되는 과정 (POD 상태변화)
