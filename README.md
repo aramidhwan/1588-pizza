@@ -558,79 +558,76 @@ http POST http://localhost:8088/orders customerId=1 pizzaNm="페퍼로니피자"
 - 이를 위하여 주문이력에 기록을 남긴 후에 곧바로 주문이 완료되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
  
 ```
-package onlinebookstore;
+package pizza;
 
 @Entity
 @Table(name="Order_table")
 public class Order {
-
  ...
     @PostPersist
     public void onPostPersist(){
-        if(this.status.equals("Ordered"))
-        {
+
+        if ("Ordered".equals(this.status)) {
+            System.out.println("#### PUB :: Ordered : orderId = " + this.orderId);
             Ordered ordered = new Ordered();
             BeanUtils.copyProperties(this, ordered);
             ordered.publishAfterCommit();
-            System.out.println("** PUB :: Ordered : orderId="+this.orderId);
-        }
-        else
-        {
-            OutOfStocked outOfStocked = new OutOfStocked();
-            BeanUtils.copyProperties(this, outOfStocked);
-            outOfStocked.publish();
-            System.out.println("** PUB :: OutOfStocked : orderId="+this.orderId);
+        } else if ("NoStoreOpened".equals(this.status)) {
+            System.out.println("#### PUB :: OrderRejected : orderId = " + this.orderId);
+            OrderRejected orderRejected = new OrderRejected();
+            BeanUtils.copyProperties(this, orderRejected);
+            orderRejected.publishAfterCommit();
         }
     }
-
 }
 ```
-- 배송관리 서비스에서는 주문 완료 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
-
+- 배달 서비스에서는 주문 및 조리완료 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 ```
-package onlinebookstore;
+package pizza;
 
 ...
 
 @Service
 public class PolicyHandler{
+    @Autowired
+    DeliveryRepository deliveryRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverOrdered_Delivery(@Payload Ordered ordered){
+    public void wheneverCooked_DeliveryAccept(@Payload Cooked cooked){
 
-        if(!ordered.validate()) return;
+        if(!cooked.validate()) return;
 
-        System.out.println("\n\n##### listener Delivery : " + ordered.toJson() + "\n\n");
+        System.out.println("\n\n##### listener DeliveryAccept : " + cooked.getOrderId());
 
+        // 배달접수
         Delivery delivery = new Delivery();
-        
-        delivery.setOrderid(ordered.getOrderId());
-        delivery.setDeliverystatus("Order-Delivery");         
-        
+        BeanUtils.copyProperties(cooked, delivery);
+        delivery.setStatus("DeliveryStart");
         deliveryRepository.save(delivery);
-            
     }
 }
 
 ```
 
-배송 시스템은 주문/재고관리와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 배송 시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
+배달 시스템은 주문과 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 배달 시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
 ```
-# 배송관리 서비스 (Delivery) 를 잠시 내려놓음 (ctrl+c)
+# 배달관리 서비스 (Delivery) 를 잠시 내려놓음 (ctrl+c)
 
 #주문처리
-http POST localhost:8088/orders bookId=1 qty=10 customerId=1   #Success
-http POST localhost:8088/orders bookId=2 qty=20 customerId=2   #Success
+http POST http://localhost:8088/orders customerId=1 pizzaNm="페퍼로니피자" qty=1 regionNm="강남구"   #Success
 
 #주문상태 확인
-http localhost:8088/orders     # 주문상태 안바뀜 확인
+http GET http://localhost:8088/orders/1     # 정상적으로 주문됨을 확인
+
+#체인점에서 "조리완료" 처리
+http PATCH http://localhost:8088/storeOrders/1 status=Cooked
 
 #배송 서비스 기동
 cd Delivery
 mvn spring-boot:run
 
 #주문상태 확인
-http localhost:8080/orders     # 모든 주문의 상태가 "Delivery Started"로 확인
+http localhost:8088/orders/1     # 주문 상태가 "DeliveryStart"로 확인
 ```
 
 
@@ -640,70 +637,42 @@ http localhost:8080/orders     # 모든 주문의 상태가 "Delivery Started"�
 
 - git에서 소스 가져오기
 ```
-git clone https://github.com/aramidhwan/OnlineBookStore.git
+git clone https://github.com/aramidhwan/1588-pizza.git
 ```
 - Build 하기
 ```
-cd /book
+cd order
 mvn package
 
-cd ../customer
+cd ../store
 mvn package
 
-cd ../customercenter
-mvn package
-
-cd ../order
-mvn package
-
-cd ../delivery
-mvn package
-
-cd ../gateway
-mvn package
-
+...이하 생략...
 ```
 
 - Docker Image build/Push/
 ```
 
-cd ../gateway
-docker build -t skccteam2acr.azurecr.io/gateway:latest .
-docker push skccteam2acr.azurecr.io/gateway:latest
+cd order
+docker build -t aramidhwan.azurecr.io/order:latest .
+docker push aramidhwan.azurecr.io/order:latest
 
-cd ../book
-docker build -t skccteam2acr.azurecr.io/book:latest .
-docker push skccteam2acr.azurecr.io/book:latest
+cd ../store
+docker build -t aramidhwan.azurecr.io/store:latest .
+docker push aramidhwan.azurecr.io/store:latest
 
-cd ../customer
-docker build -t skccteam2acr.azurecr.io/customer:latest .
-docker push skccteam2acr.azurecr.io/customer:latest
-
-cd ../customercenter
-docker build -t skccteam2acr.azurecr.io/customercenter:latest .
-docker push skccteam2acr.azurecr.io/customercenter:latest
-
-cd ../order
-docker build -t skccteam2acr.azurecr.io/order:latest .
-docker push skccteam2acr.azurecr.io/order:latest
-
-cd ../delivery
-docker build -t skccteam2acr.azurecr.io/delivery:latest .
-docker push skccteam2acr.azurecr.io/delivery:latest
-
-
+...이하 생략...
 ```
 
 - yml파일 이용한 deploy
 ```
 kubectl apply -f deployment.yml
 
-- OnlineBookStore/Order/kubernetes/deployment.yml 파일 
+- 1588-pizza/order/kubernetes/deployment.yml 파일 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order
-  namespace: onlinebookstore
   labels:
     app: order
 spec:
@@ -718,7 +687,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: skccteam2acr.azurecr.io/order:latest
+          image: aramidhwan.azurecr.io/order:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -737,19 +706,6 @@ spec:
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 5
-          env:
-            - name: configmap
-              valueFrom:
-                configMapKeyRef:
-                  name: resturl
-                  key: url
-          resources:
-            requests:
-              cpu: 300m
-              # memory: 256Mi
-            limits:
-              cpu: 500m
-              # memory: 256Mi
 ```	  
 
 - deploy 완료
@@ -759,43 +715,44 @@ spec:
 
 ## ConfigMap 
 - 시스템별로 변경 가능성이 있는 설정들을 ConfigMap을 사용하여 관리
-- OnlineBookStore에서는 주문에서 책 재고 서비스 호출 시 "호출 주소"를 ConfigMap 처리하기로 결정
+- 1588-pizza에서는 주문에서 체인점 영업상태 체크 호출 시 "호출 주소"를 ConfigMap 처리하기로 결정
 
-- Java 소스에 "호출 주소"를 변수(api.url.book) 처리(/Order/src/main/java/onlinebookstore/external/BookService.java) 
+- Java 소스에 "호출 주소"를 변수(api.url.book) 처리 (/order/src/main/java/pizza/external/StoreService.java) 
 
+![image](https://user-images.githubusercontent.com/20077391/121827797-6c8bf780-ccf8-11eb-90ad-1ae553bf9ced.png)
 
-![image](https://user-images.githubusercontent.com/20077391/120964977-24705080-c79f-11eb-8e5b-be9f8e6d2128.png)
 
 
 - application.yml 파일에서 api.url.book을 ConfigMap과 연결
 
-
-![image](https://user-images.githubusercontent.com/20077391/120963090-f0dff700-c79b-11eb-88b4-247efe73a301.png)
+![image](https://user-images.githubusercontent.com/20077391/121827883-b379ed00-ccf8-11eb-9bca-554dec2a142e.png)
 
 
 - ConfigMap 생성
 
 ```
-kubectl create configmap resturl --from-literal=url=http://Book:8080
+kubectl create configmap resturl --from-literal=sotreUrl=http://Store:8080
 ```
 
 - Deployment.yml 에 ConfigMap 적용
 
-![image](https://user-images.githubusercontent.com/20077391/120965103-58e40c80-c79f-11eb-8abd-d3a98048166e.png)
+![image](https://user-images.githubusercontent.com/20077391/121828019-3602ac80-ccf9-11eb-90f4-4a1943f372b2.png)
 
 
 ## Secret 
 - DBMS 연결에 필요한 username 및 password는 민감한 정보이므로 Secret 처리하였다.
 
-![image](https://user-images.githubusercontent.com/20077391/121105591-59cc7b00-c83f-11eb-96b7-e9649498fdf2.png)
+![image](https://user-images.githubusercontent.com/20077391/121828116-942f8f80-ccf9-11eb-913e-b52eba263e84.png)
+
 
 - deployment.yml에서 env로 설정하였다.
 
-![image](https://user-images.githubusercontent.com/20077391/121105685-841e3880-c83f-11eb-9c3e-645f4a21cb8a.png)
+![image](https://user-images.githubusercontent.com/20077391/121828252-fe483480-ccf9-11eb-8e91-7438f8f5cb3c.png)
+
 
 - 쿠버네티스에서는 다음과 같이 Secret object를 생성하였다.
 
-![image](https://user-images.githubusercontent.com/20077391/121105756-a9ab4200-c83f-11eb-902a-bc276651bf7b.png)
+![image](https://user-images.githubusercontent.com/20077391/121828737-6f3c1c00-ccfb-11eb-8691-2f88a6be4c4a.png)
 
 
 ## Circuit Breaker와 Fallback 처리
