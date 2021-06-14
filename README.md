@@ -710,7 +710,7 @@ spec:
 
 - deploy 완료
 
-![image](https://user-images.githubusercontent.com/20077391/121853555-04ef9f80-cd2c-11eb-98fd-ce8b8b25732c.png)
+![image](https://user-images.githubusercontent.com/20077391/121856003-f656b780-cd2e-11eb-8fbc-c5b2c061f3e1.png)
 
 
 ## ConfigMap 
@@ -879,7 +879,7 @@ Shortest transaction:           0.00
 
 * Zero-downtime deploy 확인을 위해 seige 로 1명이 지속적인 체인점 등록 작업을 수행함
 ```
-siege -c1 -t180S --content-type "application/json" 'http://localhost:8080/stores POST {"regionNm": "강남구","openYN":"true"}'
+siege -c1 -t180S --content-type "application/json" 'http://10.0.223.154:8080/stores POST {"regionNm": "강남구","openYN":"true"}'
 ```
 
 새 버전으로 배포(이미지를 v2.0으로 변경)
@@ -887,12 +887,16 @@ siege -c1 -t180S --content-type "application/json" 'http://localhost:8080/stores
 kubectl set image deployment store store=myacr00.azurecr.io/store:v2.0
 ```
 
-customer 이미지가 변경되는 과정 (POD 상태변화)
-![image](https://user-images.githubusercontent.com/20077391/120978979-0bbc6680-c7b0-11eb-91e9-7317f2b15ee8.png)
+store 이미지가 변경되는 과정 (POD 상태변화)
+```
+kubectl get pod -l app=store -w
+```
+![image](https://user-images.githubusercontent.com/20077391/121856415-6e24e200-cd2f-11eb-88d6-c59372893827.png)
 
 
-customer 이미지가 v2.0으로 변경되었임을 확인
-![image](https://user-images.githubusercontent.com/20077391/120979060-27c00800-c7b0-11eb-8915-93197a3174b5.png)
+store 이미지가 v2.0으로 변경되었임을 확인
+![image](https://user-images.githubusercontent.com/20077391/121856540-8eed3780-cd2f-11eb-90b6-124774cd6c08.png)
+
 
 - seige 의 화면으로 넘어가서 Availability가 100% 인지 확인 (무정지 배포 성공)
 ```
@@ -900,17 +904,17 @@ customer 이미지가 v2.0으로 변경되었임을 확인
 ** Preparing 1 concurrent users for battle.
 The server is now under siege...
 Lifting the server siege...
-Transactions:                  15793 hits
+Transactions:                  51297 hits
 Availability:                 100.00 %
-Elapsed time:                 179.41 secs
-Data transferred:               3.31 MB
-Response time:                  0.01 secs
-Transaction rate:              88.03 trans/sec
-Throughput:                     0.02 MB/sec
+Elapsed time:                 179.17 secs
+Data transferred:              10.18 MB
+Response time:                  0.00 secs
+Transaction rate:             286.30 trans/sec
+Throughput:                     0.06 MB/sec
 Concurrency:                    0.99
-Successful transactions:           0
-Failed transactions:               0
-Longest transaction:            0.29
+Successful transactions:       51297
+Failed transactions:               1
+Longest transaction:            0.42
 Shortest transaction:           0.00
 ```
 
@@ -919,19 +923,19 @@ Shortest transaction:           0.00
 
 - Self-healing 확인을 위한 Liveness Probe 옵션 변경 (Port 변경)
 
-onlinebookstore/delivery/kubernetes/deployment.yml
+1588-pizza/delivery/kubernetes/deployment.yml
 
-![image](https://user-images.githubusercontent.com/20077391/120980312-7621d680-c7b1-11eb-885f-cd9bc9a9011f.png)
+![image](https://user-images.githubusercontent.com/20077391/121857004-1aff5f00-cd30-11eb-9d0b-4a3f9cfbc565.png)
 
 
 - Delivery pod에 Liveness Probe 옵션 적용 확인
 
-![image](https://user-images.githubusercontent.com/20077391/120981097-458e6c80-c7b2-11eb-9a3c-d17396a59048.png)
+![image](https://user-images.githubusercontent.com/20077391/121857693-d9bb7f00-cd30-11eb-9f2d-2078a137e964.png)
 
 
 - Liveness 확인 실패에 따른 retry발생 확인
 
-![image](https://user-images.githubusercontent.com/20077391/120981283-7e2e4600-c7b2-11eb-92ef-2d5e4f2837eb.png)
+![image](https://user-images.githubusercontent.com/20077391/121858044-2c953680-cd31-11eb-99d6-14127178e16d.png)
 
 
 
