@@ -759,44 +759,47 @@ kubectl create configmap resturl --from-literal=sotreUrl=http://Store:8080
 
 * Spring FeignClient + Hystrix를 사용하여 구현함
 
-시나리오는 주문(Order)-->재고(Book) 확인 시 주문 요청에 대한 재고확인이 3초를 넘어설 경우 Circuit Breaker 를 통하여 장애격리.
+시나리오는 주문(order)-->체인점(Store) 영업여부 체크 확인 시 1초를 넘어설 경우 Circuit Breaker 를 통하여 장애격리.
 
-- Hystrix 를 설정:  FeignClient 요청처리에서 처리시간이 3초가 넘어서면 CB가 동작하도록 (요청을 빠르게 실패처리, 차단) 설정
+- Hystrix 를 설정:  FeignClient 요청처리에서 처리시간이 1초가 넘어서면 CB가 동작하도록 (요청을 빠르게 실패처리, 차단) 설정
                     추가로, 테스트를 위해 1번만 timeout이 발생해도 CB가 발생하도록 설정
 ```
 # application.yml
 ```
-![image](https://user-images.githubusercontent.com/20077391/120970089-ed516d80-c7a5-11eb-8abb-d57cdbf77065.png)
+![image](https://user-images.githubusercontent.com/20077391/121836584-b54eab00-cd0e-11eb-95da-8affd593f85c.png)
 
 
-- 호출 서비스(주문)에서는 재고API 호출에서 문제 발생 시 주문건을 OutOfStock 처리하도록 FallBack 구현
+- 호출 서비스(주문)에서는 체인점(Store) API 호출에서 문제 발생 시 FallBack 구현
 ```
-# (Order) BookService.java 
+# (Order) StoreService.java 
 ```
-![image](https://user-images.githubusercontent.com/20077391/121100878-b034bc00-c835-11eb-97de-2bec90b7f3b0.png)
+![image](https://user-images.githubusercontent.com/20077391/121837037-a1577900-cd0f-11eb-8452-e5552a445f44.png)
 
 
-- 피호출 서비스(책재고:Book)에서 테스트를 위해 bookId가 2인 주문건에 대해 sleep 처리
+- 피호출 서비스(체인점:Store)에서 테스트를 위해 bookId가 2인 주문건에 대해 sleep 처리
 ```
-# (Book) BookController.java 
+# (Store) StoreController.java 
 ```
-![image](https://user-images.githubusercontent.com/20077391/120971537-b54b2a00-c7a7-11eb-9595-8fa8cb444be5.png)
+![image](https://user-images.githubusercontent.com/20077391/121837234-0c08b480-cd10-11eb-8e8d-496bfd8c851c.png)
 
 
 
 * 서킷 브레이커 동작 확인:
 
-bookId가 1번 인 경우 정상적으로 주문 처리 완료
+주문지역이 "강남구" 인 경우 정상적으로 주문 처리 완료
 ```
-# http POST http://52.141.32.129:8080/orders bookId=1 customerId=4 qty=1
+# http POST http://104.42.177.6:8080/orders customerId=1 pizzaNm="하와이안피자" qty=1 regionNm="강남구"
 ```
-![image](https://user-images.githubusercontent.com/20077391/120970620-a152f880-c7a6-11eb-843a-855d85678638.png)
+![image](https://user-images.githubusercontent.com/20077391/121841496-59d5ea80-cd19-11eb-949f-67c53bc68bc7.png)
 
-bookId가 2번 인 경우 CB에 의한 timeout 발생 확인 (Order건은 OutOfStocked 처리됨)
+
+주문지역이 "종로구" 인 경우 CB에 의한 timeout 발생 확인 (Order건은 NoStoreOpened 처리됨)
 ```
-# http POST http://52.141.32.129:8080/orders bookId=2 customerId=4 qty=1
+# http POST http://104.42.177.6:8080/orders customerId=1 pizzaNm="페퍼로니피자" qty=1 regionNm="종로구"
 ```
-![image](https://user-images.githubusercontent.com/20077391/120970699-bcbe0380-c7a6-11eb-8c71-ad71101ca1dc.png)
+![image](https://user-images.githubusercontent.com/20077391/121842148-cbfaff00-cd1a-11eb-961b-0283b39c6c37.png)
+![image](https://user-images.githubusercontent.com/20077391/121841895-411a0480-cd1a-11eb-8d39-247abb36ecc4.png)
+
 
 time 아웃이 연달아 2번 발생한 경우 CB가 OPEN되어 Book 호출이 아예 차단된 것을 확인 (테스트를 위해 circuitBreaker.requestVolumeThreshold=1 로 설정)
 
