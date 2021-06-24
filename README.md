@@ -338,7 +338,10 @@ http GET http://localhost:8088/myPages/1
 
 
 ## Saga
-분석/설계 및 구현을 통해 이벤트를 Publish/Subscribe 하도록 구현하였다.
+분석/설계 및 구현을 통해 이벤트를 Publish/Subscribe 하도록 구현하므로써, 다음 서비스가 트리거될 수 있도록 하였다.
+
+![image](https://user-images.githubusercontent.com/20077391/123185556-2b9e9a80-d4d1-11eb-9af3-54493a7f307a.png)
+
 
 [Publish]
 
@@ -347,6 +350,14 @@ http GET http://localhost:8088/myPages/1
 [Subscribe]
 
 ![image](https://user-images.githubusercontent.com/20077391/121466695-ce93e680-c9f2-11eb-938e-03ce98a64282.png)
+
+
+또한, 아래와 같이 보상 이벤트를 준비하여 Rollback이 가능하도록 구현되었다.
+
+![image](https://user-images.githubusercontent.com/20077391/123185781-a667b580-d4d1-11eb-937e-11aabf1fc3e0.png)
+
+
+SAGA 및 ROLLBACK의 동작은 앞 서 기능/비기능 검증부분에서 이미 검증완료하였다.
 
 
 ## CQRS
