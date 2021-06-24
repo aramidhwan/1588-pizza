@@ -301,6 +301,7 @@ http GET http://localhost:8088/myPages/1
 5. 고객이 마이페이지를 통해 주문 상태를 확인할 수 있다.
 
 --> 정상적으로 조회됨 확인하였음
+
 ![image](https://user-images.githubusercontent.com/20077391/121453233-c7ada980-c9db-11eb-8fcf-0d3958ee0bfb.png)
 
 
