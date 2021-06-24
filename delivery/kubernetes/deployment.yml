@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: delivery
+  namespace: pizza
   labels:
     app: delivery
 spec:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
         - name: delivery
-          image: username/delivery:latest
+          image: myacr00.azurecr.io/delivery:latest
           ports:
             - containerPort: 8080
           readinessProbe:

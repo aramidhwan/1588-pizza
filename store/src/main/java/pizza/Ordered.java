@@ -1,5 +1,7 @@
 package pizza;
 
+import java.util.Date;
+
 public class Ordered extends AbstractEvent {
 
     private Long orderId;

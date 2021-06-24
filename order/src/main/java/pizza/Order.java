@@ -2,12 +2,13 @@ package pizza;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
+
 import java.util.Date;
 
 @Entity
 @Table(name="Order_table")
 public class Order {
-
+    
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long orderId;
@@ -25,7 +26,11 @@ public class Order {
         boolean bResult = false;
 
         // mappings goes here
-        bResult = OrderApplication.applicationContext.getBean(pizza.external.StoreService.class).chkOpenYn(this.regionNm);
+        try {
+            bResult = OrderApplication.applicationContext.getBean(pizza.external.StoreService.class).chkOpenYN(this.regionNm);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
         // 주문가능 (해당 regionNm에 Open된 Store가 있음)
         if (bResult) {
@@ -55,18 +60,17 @@ public class Order {
 
     @PostUpdate
     public void onPostUpdate(){
-        if(this.status.equals("OrderCancelled"))
-        {
+        if(this.status.equals("OrderCancelled")) {
             System.out.println("#### PUB :: OrderCancelled : orderId = " + this.orderId);
             OrderCancelled orderCancelled = new OrderCancelled();
             BeanUtils.copyProperties(this, orderCancelled);
             orderCancelled.publishAfterCommit();
-        } else {
-            System.out.println("#### PUB :: StatusUpdated : status updated to " + this.status);
-            StatusUpdated statusUpdated = new StatusUpdated();
-            BeanUtils.copyProperties(this, statusUpdated);
-            statusUpdated.publishAfterCommit();
-        }
+        } 
+
+        System.out.println("#### PUB :: StatusUpdated : status updated to " + this.status);
+        StatusUpdated statusUpdated = new StatusUpdated();
+        BeanUtils.copyProperties(this, statusUpdated);
+        statusUpdated.publishAfterCommit();
     }
 
     public Long getOrderId() {

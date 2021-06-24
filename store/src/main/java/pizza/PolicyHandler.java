@@ -24,14 +24,12 @@ public class PolicyHandler{
 
         if(!ordered.validate()) return;
 
-        System.out.println("\n\n##### listener OrderAccept : " + ordered.getOrderId());
-
         // 주문접수
         List<Store> storeList = storeRepository.findByRegionNmAndOpenYN(ordered.getRegionNm(), Boolean.valueOf(true));
         int openStoreCnt = storeList.size();
 
         if (openStoreCnt > 0) {
-            int random = new Random().nextInt(openStoreCnt-1) ;
+            int random = new Random().nextInt(openStoreCnt) ;
 
             StoreOrder storeOrder = new StoreOrder();
             BeanUtils.copyProperties(ordered, storeOrder);
@@ -46,14 +44,12 @@ public class PolicyHandler{
 
         if(!orderCancelled.validate()) return;
 
-        System.out.println("\n\n##### listener CancelAccepted : " + orderCancelled.getOrderId());
-
         // 주문취소접수
         Optional<StoreOrder> storeOrderOptional = storeOrderRepository.findByOrderId(orderCancelled.getOrderId());
 
         if (storeOrderOptional.isPresent()) {
             StoreOrder storeOrder = storeOrderOptional.get();
-            storeOrder.setStatus("StoreAcceptCancelled");
+            storeOrder.setStatus("OrderCancelled");
             storeOrderRepository.save(storeOrder);
         }
     }

@@ -1,5 +1,7 @@
 package pizza;
 
+import java.util.Date;
+
 public class OrderCancelled extends AbstractEvent {
 
     private Long orderId;

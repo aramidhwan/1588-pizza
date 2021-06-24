@@ -45,12 +45,22 @@ logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
+
+api:
+  url:
+    book: http://localhost:8082
+    
 server:
   port: 8081
 ---
 
 spring:
   profiles: docker
+  # datasource:
+  #   driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  #   url: jdbc:sqlserver://aramidhwan.database.windows.net:1433;database=pizza;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
+  #   username: ${SQLSERVER_USERNAME}
+  #   password: ${SQLSERVER_PASSWORD}
   cloud:
     stream:
       kafka:
@@ -72,3 +82,15 @@ spring:
         event-out:
           destination: pizza
           contentType: application/json
+
+api:
+  url:
+    book: ${configmap}
+
+feign:
+  hystrix:
+    enabled: true
+hystrix:
+  command:
+    default:
+      circuitBreaker.requestVolumeThreshold: 1

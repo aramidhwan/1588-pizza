@@ -1,6 +1,8 @@
 
 package pizza;
 
+import java.util.Date;
+
 public class Cooked extends AbstractEvent {
 
     private Long id;
