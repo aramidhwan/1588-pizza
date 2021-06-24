@@ -779,6 +779,12 @@ kubectl create configmap resturl --from-literal=sotreUrl=http://Store:8080
 ```
 ![image](https://user-images.githubusercontent.com/20077391/121837037-a1577900-cd0f-11eb-8452-e5552a445f44.png)
 
+```
+# (Order) StoreServiceFallbackFactory.java 
+```
+![image](https://user-images.githubusercontent.com/20077391/123183614-d6f92080-d4cc-11eb-9301-3ca4b24d5d6e.png)
+
+
 
 - 피호출 서비스(체인점:Store)에서 테스트를 위해 주문지역이 "종로구"인 주문건에 대해 sleep 처리
 ```
