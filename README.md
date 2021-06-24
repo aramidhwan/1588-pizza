@@ -7,7 +7,7 @@
 
 # Table of contents
 
-- [온라인서점](#---)
+- [PIZZA 통합주문콜센터](#---)
   - [서비스 시나리오](#서비스-시나리오)
   - [분석/설계](#분석설계)
     - [Event Storming 결과](#Event-Storming-결과)
@@ -339,10 +339,13 @@ http GET http://localhost:8088/myPages/1
 
 ## Saga
 분석/설계 및 구현을 통해 이벤트를 Publish/Subscribe 하도록 구현하였다.
+
 [Publish]
+
 ![image](https://user-images.githubusercontent.com/20077391/121466412-5decca00-c9f2-11eb-8e95-b783c193db96.png)
 
 [Subscribe]
+
 ![image](https://user-images.githubusercontent.com/20077391/121466695-ce93e680-c9f2-11eb-938e-03ce98a64282.png)
 
 
@@ -654,25 +657,26 @@ mvn package
 ```
 
 cd order
-docker build -t aramidhwan.azurecr.io/order:latest .
-docker push aramidhwan.azurecr.io/order:latest
+docker build -t myacr00.azurecr.io/order:latest .
+docker push myacr00.azurecr.io/order:latest
 
 cd ../store
-docker build -t aramidhwan.azurecr.io/store:latest .
-docker push aramidhwan.azurecr.io/store:latest
+docker build -t myacr00.azurecr.io/store:latest .
+docker push myacr00.azurecr.io/store:latest
 
 ...이하 생략...
 ```
 
-- yml파일 이용한 deploy
+- yml파일 이용한 deploy (예시: 1588-pizza/order/kubernetes/deployment.yml 파일)
 ```
 kubectl apply -f deployment.yml
 
-- 1588-pizza/order/kubernetes/deployment.yml 파일 
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order
+  namespace: pizza
   labels:
     app: order
 spec:
@@ -687,7 +691,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: aramidhwan.azurecr.io/order:latest
+          image: myacr00.azurecr.io/order:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -728,7 +732,7 @@ spec:
 ![image](https://user-images.githubusercontent.com/20077391/121827883-b379ed00-ccf8-11eb-9bca-554dec2a142e.png)
 
 
-- ConfigMap 생성
+- 클러스터에 ConfigMap 생성
 
 ```
 kubectl create configmap resturl --from-literal=sotreUrl=http://Store:8080
@@ -750,7 +754,7 @@ kubectl create configmap resturl --from-literal=sotreUrl=http://Store:8080
 ![image](https://user-images.githubusercontent.com/20077391/121828252-fe483480-ccf9-11eb-8e91-7438f8f5cb3c.png)
 
 
-- 쿠버네티스에서는 다음과 같이 Secret object를 생성하였다.
+- 쿠버네티스에서는 base64 처리하여 다음과 같이 Secret object를 생성하였다.
 
 ![image](https://user-images.githubusercontent.com/20077391/121828737-6f3c1c00-ccfb-11eb-8691-2f88a6be4c4a.png)
 
@@ -776,7 +780,7 @@ kubectl create configmap resturl --from-literal=sotreUrl=http://Store:8080
 ![image](https://user-images.githubusercontent.com/20077391/121837037-a1577900-cd0f-11eb-8452-e5552a445f44.png)
 
 
-- 피호출 서비스(체인점:Store)에서 테스트를 위해 bookId가 2인 주문건에 대해 sleep 처리
+- 피호출 서비스(체인점:Store)에서 테스트를 위해 주문지역이 "종로구"인 주문건에 대해 sleep 처리
 ```
 # (Store) StoreController.java 
 ```
@@ -825,10 +829,9 @@ hpa.yml
 ![image](https://user-images.githubusercontent.com/20077391/121843544-6e1be680-cd1d-11eb-9c2c-da27c0842e89.png)
 
 - deployment.yml에 resource 관련 설정을 추가해 준다.
-```
-deployment.yml
-```
+
 ![image](https://user-images.githubusercontent.com/20077391/121843585-7ffd8980-cd1d-11eb-876d-2a5c516a9101.png)
+
 
 - 100명이 60초 동안 주문을 넣어준다.
 ```
@@ -870,10 +873,12 @@ Shortest transaction:           0.00
 ## Zero-downtime deploy (Readiness Probe) 무정지 재배포
 
 * Zero-downtime deploy를 위해 deployment.yml에 readiness Probe를 설정함
+
 ![image](https://user-images.githubusercontent.com/20077391/121853740-42542d00-cd2c-11eb-9455-08562342a5ab.png)
 
 
 * 먼저 store 이미지가 v1.0 임을 확인
+
 ![image](https://user-images.githubusercontent.com/20077391/121855205-0a4de980-cd2e-11eb-9242-062fc4bcbd00.png)
 
 
@@ -895,6 +900,7 @@ kubectl get pod -l app=store -w
 
 
 store 이미지가 v2.0으로 변경되었임을 확인
+
 ![image](https://user-images.githubusercontent.com/20077391/121856540-8eed3780-cd2f-11eb-90b6-124774cd6c08.png)
 
 
