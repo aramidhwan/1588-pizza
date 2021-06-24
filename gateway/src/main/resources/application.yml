@@ -15,7 +15,7 @@ spring:
         - id: store
           uri: http://localhost:8082
           predicates:
-            - Path=/stores/**/storeOrders/** 
+            - Path=/stores/**,/storeOrders/** 
         - id: delivery
           uri: http://localhost:8083
           predicates:
@@ -50,7 +50,7 @@ spring:
         - id: store
           uri: http://store:8080
           predicates:
-            - Path=/stores/**/storeOrders/** 
+            - Path=/stores/**,/storeOrders/** 
         - id: delivery
           uri: http://delivery:8080
           predicates:

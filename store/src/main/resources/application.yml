@@ -56,6 +56,15 @@ spring:
     url: jdbc:sqlserver://aramidhwan.database.windows.net:1433;database=pizza;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
     username: ${SQLSERVER_USERNAME}
     password: ${SQLSERVER_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: true
+        dialect: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: create
+      generate-ddl: true
   cloud:
     stream:
       kafka:
