@@ -42,6 +42,16 @@ spec:
                 configMapKeyRef:
                   name: resturl
                   key: storeUrl
+            - name: SQLSERVER_USERNAME
+              valueFrom:
+                secretKeyRef: 
+                  name: sqlserver-basic-auth
+                  key: username
+            - name: SQLSERVER_PASSWORD
+              valueFrom:
+                secretKeyRef: 
+                  name: sqlserver-basic-auth
+                  key: password
           resources:
             requests:
               cpu: 300m
