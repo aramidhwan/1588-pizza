@@ -1,6 +1,6 @@
 "# 1588-pizza" 
 
-# PIZZA 통합주문콜센터
+# PIZZA 통합주문콜센터x
 
 - 체크포인트 : https://workflowy.com/s/assessment-check-po/T5YrzcMewfo4J6LW
 
