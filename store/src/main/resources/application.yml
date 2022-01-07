@@ -17,7 +17,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL57Dialect
     hibernate:
       # ddl-auto: update
-      ddl-auto: create
+      ddl-auto: create        # 기존 테이블 DROP 후 재 생성
       generate-ddl: true
   cloud:
     stream:
