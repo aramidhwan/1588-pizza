@@ -6,7 +6,8 @@ spring:
   profiles: default
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+#    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://10.0.2.15:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: admin
     password: admin
   jpa:
@@ -23,7 +24,8 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: localhost:9092
+          brokers: 10.0.2.15:9092
+#          brokers: localhost:9092
         streams:
           binder:
             configuration:
