@@ -60,7 +60,7 @@ public class Order {
 
     @PostUpdate
     public void onPostUpdate(){
-        if(this.status.equals("OrderCancelled")) {
+        if("OrderCancelled".equals(this.status)) {
             System.out.println("#### PUB :: OrderCancelled : orderId = " + this.orderId);
             OrderCancelled orderCancelled = new OrderCancelled();
             BeanUtils.copyProperties(this, orderCancelled);
