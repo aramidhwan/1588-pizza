@@ -1,36 +1,43 @@
-"# 1588-pizza" 
-
-# PIZZA 통합주문콜센터
+# 1588-pizza : PIZZA 통합주문콜센터
 
 - 체크포인트 : https://workflowy.com/s/assessment-check-po/T5YrzcMewfo4J6LW
 
 
 # Table of contents
 
-- [PIZZA 통합주문콜센터](#---)
-  - [서비스 시나리오](#서비스-시나리오)
-  - [분석/설계](#분석설계)
-    - [Event Storming 결과](#Event-Storming-결과)
-    - [헥사고날 아키텍처 다이어그램 도출](#헥사고날-아키텍처-다이어그램-도출)
-  - [구현:](#구현:)
-    - [DDD 의 적용](#DDD-의-적용)
-    - [기능적 요구사항 검증](#기능적-요구사항-검증)
-    - [비기능적 요구사항 검증](#비기능적-요구사항-검증)
-    - [Saga](#saga)
-    - [CQRS](#cqrs)
-    - [Correlation](#correlation)
-    - [GateWay](#gateway)
-    - [Polyglot](#polyglot)
-    - [동기식 호출(Req/Resp) 패턴](#동기식-호출reqresp-패턴)
-    - [비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트](#비동기식-호출--시간적-디커플링--장애격리--최종-eventual-일관성-테스트)
-  - [운영](#운영)
-    - [Deploy / Pipeline](#deploy--pipeline)
-    - [Config Map](#configmap)
-    - [Secret](#secret)
-    - [Circuit Breaker와 Fallback 처리](#circuit-breaker와-fallback-처리)
-    - [오토스케일 아웃](#오토스케일-아웃)
-    - [Zero-downtime deploy (Readiness Probe) 무정지 재배포](#zero-downtime-deploy-readiness-probe-무정지-재배포)
-    - [Self-healing (Liveness Probe))](#self-healing-liveness-probe)
+- [1588-pizza : PIZZA 통합주문콜센터](#1588-pizza--pizza-통합주문콜센터)
+- [Table of contents](#table-of-contents)
+- [서비스 시나리오](#서비스-시나리오)
+- [분석/설계](#분석설계)
+  - [Event Storming 결과](#event-storming-결과)
+    - [이벤트 도출](#이벤트-도출)
+    - [부적격 이벤트 탈락](#부적격-이벤트-탈락)
+    - [완성된 1차 모형](#완성된-1차-모형)
+    - [1차 완성본에 대한 기능적 요구사항을 커버하는지 검증](#1차-완성본에-대한-기능적-요구사항을-커버하는지-검증)
+    - [1차 완성본에 대한 비기능적 요구사항을 커버하는지 검증](#1차-완성본에-대한-비기능적-요구사항을-커버하는지-검증)
+    - [최종 완성된 모형](#최종-완성된-모형)
+  - [헥사고날 아키텍처 다이어그램 도출](#헥사고날-아키텍처-다이어그램-도출)
+- [구현:](#구현)
+  - [DDD 의 적용](#ddd-의-적용)
+  - [기능적 요구사항 검증](#기능적-요구사항-검증)
+  - [비기능적 요구사항 검증](#비기능적-요구사항-검증)
+  - [Saga](#saga)
+  - [CQRS](#cqrs)
+  - [Correlation](#correlation)
+  - [GateWay](#gateway)
+  - [Polyglot](#polyglot)
+  - [동기식 호출(Req/Resp) 패턴](#동기식-호출reqresp-패턴)
+  - [비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트](#비동기식-호출--시간적-디커플링--장애격리--최종-eventual-일관성-테스트)
+- [운영](#운영)
+  - [Deploy / Pipeline](#deploy--pipeline)
+- [application.yml](#applicationyml)
+- [(Order) StoreService.java](#order-storeservicejava)
+- [(Order) StoreServiceFallbackFactory.java](#order-storeservicefallbackfactoryjava)
+- [(Store) StoreController.java](#store-storecontrollerjava)
+- [http POST http://104.42.177.6:8080/orders customerId=1 pizzaNm="하와이안피자" qty=1 regionNm="강남구"](#http-post-http1044217768080orders-customerid1-pizzanm하와이안피자-qty1-regionnm강남구)
+- [http POST http://104.42.177.6:8080/orders customerId=1 pizzaNm="페퍼로니피자" qty=1 regionNm="종로구"](#http-post-http1044217768080orders-customerid1-pizzanm페퍼로니피자-qty1-regionnm종로구)
+- [Self-healing (Liveness Probe)](#self-healing-liveness-probe)
+- [끗~](#끗)
 
 # 서비스 시나리오
 
