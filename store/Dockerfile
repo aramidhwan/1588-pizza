@@ -20,9 +20,10 @@ COPY jennifer-agent-java-$AGENT_VERSION.zip /
 RUN unzip -oq jennifer-agent-java-${AGENT_VERSION}.zip -d /$JENNIFER_HOME
 RUN `sed -i "s/domain_id = 1000/domain_id = $DOMAIN_ID/" $AGENT_HOME/conf/jennifer.conf`
 RUN `sed -i "s/192.168.0.1/$J_SERVER_IP/" $AGENT_HOME/conf/jennifer.conf`
-RUN `sed -i "4a\\inst_name=$CONF_FILE_NM" $AGENT_HOME/conf/jennifer.conf`
+RUN `sed -i "3a\\inst_name=$CONF_FILE_NM" $AGENT_HOME/conf/jennifer.conf`
 RUN `sed -i "4a\\ignore_url_postfix=\/healthcheck1" $AGENT_HOME/conf/jennifer.conf`
-RUN `sed -i "4a\\ignore_url_postfix=\/healthcheck2" $AGENT_HOME/conf/jennifer.conf`
+RUN `sed -i "5a\\ignore_url_postfix=\/healthcheck2" $AGENT_HOME/conf/jennifer.conf`
+#RUN `cp $AGENT_HOME/conf/jennifer.conf $AGENT_HOME/conf/$CONF_FILE_NM.conf`
 #####################
 ############################ JENNIFER SETTING END #########################
 
