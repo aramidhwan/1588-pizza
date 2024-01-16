@@ -19,7 +19,7 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL57Dialect
+        # dialect: org.hibernate.dialect.MySQL57Dialect
     hibernate:
 # create, create-drop, update, validate, none
 # create : SessionFactory 시작시 스키마를 삭제하고 다시 생성
