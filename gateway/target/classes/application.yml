@@ -1,19 +1,21 @@
 server:
-  port: 8080
+  port: 8090
 
 ---
 
 spring:
   profiles: default
+  application:
+    name: gateway
   cloud:
     gateway:
       routes:
         - id: order
-          uri: http://localhost:8081
+          uri: http://localhost:8091
           predicates:
             - Path=/orders/** 
         - id: store
-          uri: http://localhost:8082
+          uri: http://10.0.2.15:8092
           predicates:
             - Path=/stores/**,/storeOrders/** 
         - id: delivery

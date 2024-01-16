@@ -1,13 +1,16 @@
 server:
   port: 8080
 ---
+server:
+  port: 8091
 
 spring:
   profiles: default
+  application:
+    name: order
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://10.0.2.15:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
-#    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: admin
     password: admin
   jpa:
@@ -24,8 +27,8 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 10.0.2.15:9092
-#          brokers: localhost:9092
+#          brokers: 10.0.2.15:9092
+          brokers: localhost:9092
         streams:
           binder:
             configuration:
@@ -57,10 +60,8 @@ logging:
 
 api:
   url:
-    store: http://localhost:8082
-    
-server:
-  port: 8081
+    store: http://localhost:8092
+
 ---
 
 spring:

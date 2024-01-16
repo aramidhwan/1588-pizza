@@ -1,13 +1,17 @@
 server:
   port: 8080
 ---
+server:
+  port: 8092
 
 spring:
   profiles: default
+  application:
+    name: store
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
-    url: jdbc:mysql://10.0.2.15:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
+#    url: jdbc:mysql://10.0.2.15:3306/1588-pizza?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: admin
     password: admin
   jpa:
@@ -33,8 +37,8 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 10.0.2.15:9092
-#          brokers: localhost:9092
+#          brokers: 10.0.2.15:9092
+          brokers: localhost:9092
         streams:
           binder:
             configuration:
@@ -64,8 +68,6 @@ logging:
     org.apache.kafka.clients.producer.ProducerConfig: WARN
     org.hibernate.hql.internal.QueryTranslatorFactoryInitiator: WARN
 
-server:
-  port: 8082
 ---
 
 spring:

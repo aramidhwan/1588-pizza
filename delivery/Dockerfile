@@ -1,6 +1,7 @@
 FROM openjdk:8-jdk-alpine
 COPY target/*SNAPSHOT.jar app.jar
 EXPOSE 8080
+RUN apk add tzdata && ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
 ############################ JENNIFER SETTING START #########################
 #####################

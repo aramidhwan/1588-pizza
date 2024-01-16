@@ -9,4 +9,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface OrderRepository extends PagingAndSortingRepository<Order, Long>{
 
     Optional<Order> findByOrderId(Long orderId);
+    
 }
